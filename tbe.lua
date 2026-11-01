@@ -6,6 +6,7 @@ local CoreGui = game:GetService("CoreGui")
 local RunService = game:GetService("RunService")
 local HttpService = game:GetService("HttpService")
 local TextService = game:GetService("TextService")
+local ContentProvider = game:GetService("ContentProvider")
 
 local Library = {
     WhitelistedUsers = {} 
@@ -77,6 +78,18 @@ local function Tween(instance, properties, duration)
     return tween
 end
 
+-- // Utility: Normalize any asset input (123456, "123456", "rbxassetid://123456") into a valid Image string
+local function NormalizeAsset(id)
+    if type(id) == "number" then
+        return "rbxassetid://" .. tostring(math.floor(id))
+    end
+    id = tostring(id):gsub("%s+", "")
+    if id:match("^%d+$") then
+        return "rbxassetid://" .. id
+    end
+    return id
+end
+
 -- // Utility: Micro-Interaction Bounce
 local function AddBounce(button, scaleFactor)
     scaleFactor = scaleFactor or 0.96
@@ -131,11 +144,13 @@ local function MakeDraggable(topbar, object)
 end
 
 local AccentColor = Color3.fromRGB(148, 0, 211)
+local OutlineColor = Color3.fromRGB(0, 120, 255)
 local BackgroundColor = Color3.fromRGB(18, 18, 20)
 local CardColor = Color3.fromRGB(24, 24, 27)
 local HoverColor = Color3.fromRGB(35, 35, 40)
-local TextColor = Color3.fromRGB(240, 240, 240)
-local SubTextColor = Color3.fromRGB(148, 0, 211)
+local TextColor = Color3.fromRGB(255, 255, 255)
+local SubTextColor = Color3.fromRGB(255, 255, 255)
+local CardTransparency = 0.25
 
 -- // Global Notification API
 local GlobalNotifContainer
@@ -171,18 +186,30 @@ end
 function Library:CreateWindow(options)
     local hubName = "ZyronX Ui Lib"
     local subText = "Made By Hypol-X"
-    local subColor = AccentColor
+    local subColor = Color3.fromRGB(255, 255, 255)
     local sphTextToggle = false
     local sphWords = "ZX"
     local sphImage = nil
     local topbarLogo = nil
     local logoSize = 32
     local sphIconSize = 26
+    local outlineColor = OutlineColor
+    local bgDelay = 2
+    local bgImages = {
+        "rbxassetid://81817688420352",
+        "rbxassetid://138185685466744",
+        "rbxassetid://131336818699662",
+    }
 
     if type(options) == "table" then
         hubName = options.Title or hubName
         subText = options.Subtitle or subText
         subColor = options.SubtitleColor or subColor
+        outlineColor = options.OutlineColor or outlineColor
+        bgDelay = options.BackgroundDelay or bgDelay
+        if type(options.BackgroundImages) == "table" and #options.BackgroundImages > 0 then
+            bgImages = options.BackgroundImages
+        end
         
         if options.SphereText ~= nil then
             sphTextToggle = options.SphereText
@@ -274,7 +301,7 @@ function Library:CreateWindow(options)
     local InfoExampleBox = Create("Frame", {Parent = InfoScroll, BackgroundColor3 = Color3.fromRGB(10, 10, 12), Size = UDim2.new(1, 0, 0, 0), AutomaticSize = Enum.AutomaticSize.Y, Visible = false, ZIndex = 152})
     Create("UICorner", {Parent = InfoExampleBox, CornerRadius = UDim.new(0, 6)})
     Create("UIStroke", {Parent = InfoExampleBox, Color = Color3.fromRGB(40, 40, 45), Thickness = 1})
-    local InfoExampleText = Create("TextLabel", {Parent = InfoExampleBox, Text = "", Font = Enum.Font.Code, TextSize = 12, TextColor3 = AccentColor, BackgroundTransparency = 1, Size = UDim2.new(1, -20, 0, 0), Position = UDim2.new(0, 10, 0, 10), TextXAlignment = Enum.TextXAlignment.Left, TextYAlignment = Enum.TextYAlignment.Top, TextWrapped = true, AutomaticSize = Enum.AutomaticSize.Y, ZIndex = 152, TextTransparency = 1})
+    local InfoExampleText = Create("TextLabel", {Parent = InfoExampleBox, Text = "", Font = Enum.Font.Code, TextSize = 12, TextColor3 = TextColor, BackgroundTransparency = 1, Size = UDim2.new(1, -20, 0, 0), Position = UDim2.new(0, 10, 0, 10), TextXAlignment = Enum.TextXAlignment.Left, TextYAlignment = Enum.TextYAlignment.Top, TextWrapped = true, AutomaticSize = Enum.AutomaticSize.Y, ZIndex = 152, TextTransparency = 1})
     Create("UIPadding", {Parent = InfoExampleBox, PaddingBottom = UDim.new(0, 10)})
 
     InfoLayout:GetPropertyChangedSignal("AbsoluteContentSize"):Connect(function() InfoScroll.CanvasSize = UDim2.new(0, 0, 0, InfoLayout.AbsoluteContentSize.Y + 10) end)
@@ -325,7 +352,6 @@ function Library:CreateWindow(options)
     local MainFrame = Create("Frame", {Parent = ScreenGui, BackgroundColor3 = BackgroundColor, Size = UDim2.new(0, 525, 0, 355), Position = UDim2.new(0.5, 0, 0.5, 0), AnchorPoint = Vector2.new(0.5, 0.5), ClipsDescendants = true, BackgroundTransparency = 1, Active = true})
     local MainScale = Create("UIScale", {Parent = MainFrame, Scale = 0.8})
     Create("UICorner", {Parent = MainFrame, CornerRadius = UDim.new(0, 8)})
-    Create("UIStroke", {Parent = MainFrame, Color = Color3.fromRGB(40, 40, 45), Thickness = 1})
     Tween(MainScale, {Scale = 1}, 0.5)
     Tween(MainFrame, {BackgroundTransparency = 0}, 0.5)
 
@@ -402,7 +428,7 @@ function Library:CreateWindow(options)
     local Title = Create("TextLabel", {Parent = TitleContainer, Text = hubName, Font = Enum.Font.GothamBold, TextSize = 14, TextColor3 = TextColor, BackgroundTransparency = 1, Position = UDim2.new(0, 0, 0, 5), Size = UDim2.new(1, 0, 0, 16), TextXAlignment = Enum.TextXAlignment.Left})
     local Subtitle = Create("TextLabel", {Parent = TitleContainer, Text = subText, Font = Enum.Font.Gotham, TextSize = 10, TextColor3 = subColor, BackgroundTransparency = 1, Position = UDim2.new(0, 0, 0, 22), Size = UDim2.new(1, 0, 0, 12), TextXAlignment = Enum.TextXAlignment.Left})
 
-    local SearchBar = Create("Frame", {Parent = TopBar, BackgroundColor3 = CardColor, Size = UDim2.new(0, 250, 0, 26), Position = UDim2.new(0, 180, 0.5, -13)})
+    local SearchBar = Create("Frame", {Parent = TopBar, BackgroundColor3 = CardColor, BackgroundTransparency = CardTransparency, Size = UDim2.new(0, 250, 0, 26), Position = UDim2.new(0, 180, 0.5, -13)})
     Create("UICorner", {Parent = SearchBar, CornerRadius = UDim.new(0, 6)})
     local SearchIcon = Create("ImageLabel", {Parent = SearchBar, BackgroundTransparency = 1, Image = "rbxassetid://6031154871", ImageColor3 = SubTextColor, Size = UDim2.new(0, 14, 0, 14), Position = UDim2.new(0, 8, 0.5, -7)})
     local SearchInput = Create("TextBox", {Parent = SearchBar, BackgroundTransparency = 1, Size = UDim2.new(1, -30, 1, 0), Position = UDim2.new(0, 30, 0, 0), Font = Enum.Font.Gotham, TextSize = 12, TextColor3 = TextColor, PlaceholderText = "Search..", TextXAlignment = Enum.TextXAlignment.Left, ClearTextOnFocus = false})
@@ -411,7 +437,7 @@ function Library:CreateWindow(options)
     local MinBtn = Create("TextButton", {Parent = TopBar, Text = "—", Font = Enum.Font.GothamBold, TextSize = 14, TextColor3 = SubTextColor, BackgroundTransparency = 1, Size = UDim2.new(0, 30, 1, 0), Position = UDim2.new(1, -65, 0, 0)})
 
     local Sidebar = Create("Frame", {Parent = MainFrame, BackgroundColor3 = BackgroundColor, BackgroundTransparency = 1, Size = UDim2.new(0, 160, 1, -40), Position = UDim2.new(0, 0, 0, 40), Active = true})
-    local TabSearchBox = Create("TextBox", {Parent = Sidebar, BackgroundColor3 = CardColor, Size = UDim2.new(1, -20, 0, 26), Position = UDim2.new(0, 10, 0, 5), Font = Enum.Font.Gotham, TextSize = 12, TextColor3 = TextColor, PlaceholderText = "Search tabs...", TextXAlignment = Enum.TextXAlignment.Left, ClearTextOnFocus = false})
+    local TabSearchBox = Create("TextBox", {Parent = Sidebar, BackgroundColor3 = CardColor, BackgroundTransparency = CardTransparency, Size = UDim2.new(1, -20, 0, 26), Position = UDim2.new(0, 10, 0, 5), Font = Enum.Font.Gotham, TextSize = 12, TextColor3 = TextColor, PlaceholderText = "Search tabs...", TextXAlignment = Enum.TextXAlignment.Left, ClearTextOnFocus = false})
     Create("UIPadding", {Parent = TabSearchBox, PaddingLeft = UDim.new(0, 8)})
     Create("UICorner", {Parent = TabSearchBox, CornerRadius = UDim.new(0, 4)})
     local TabSearchStroke = Create("UIStroke", {Parent = TabSearchBox, Color = Color3.fromRGB(45, 45, 50), Thickness = 1})
@@ -424,11 +450,11 @@ function Library:CreateWindow(options)
 
     local Sphere = Create("ImageButton", {Parent = ScreenGui, BackgroundColor3 = BackgroundColor, BackgroundTransparency = 0.2, Size = UDim2.new(0, 50, 0, 50), Position = UDim2.new(0.5, 0, 0.5, 0), AnchorPoint = Vector2.new(0.5, 0.5), Visible = false, AutoButtonColor = false, ImageTransparency = 1, ClipsDescendants = true})
     Create("UICorner", {Parent = Sphere, CornerRadius = UDim.new(1, 0)})
-    Create("UIStroke", {Parent = Sphere, Color = AccentColor, Thickness = 2})
+    Create("UIStroke", {Parent = Sphere, Color = outlineColor, Thickness = 2})
     
     -- MODIFIED SECTION: Text Label prioritized if SphereText toggle is true. Avoids passing boolean as Text.
     local SphereImageLabel = Create("ImageLabel", {Parent = Sphere, BackgroundTransparency = 1, Size = UDim2.new(0, sphIconSize, 0, sphIconSize), Position = UDim2.new(0.5, 0, 0.5, 0), AnchorPoint = Vector2.new(0.5, 0.5), Image = sphImage or "", ImageTransparency = 1, Visible = (not sphTextToggle and sphImage ~= nil)})
-    local SphereTextLabel = Create("TextLabel", {Parent = Sphere, Text = sphWords, Font = Enum.Font.GothamBold, TextSize = 16, TextColor3 = AccentColor, BackgroundTransparency = 1, Size = UDim2.new(1, 0, 1, 0), TextTransparency = 1, Visible = sphTextToggle})
+    local SphereTextLabel = Create("TextLabel", {Parent = Sphere, Text = sphWords, Font = Enum.Font.GothamBold, TextSize = 16, TextColor3 = TextColor, BackgroundTransparency = 1, Size = UDim2.new(1, 0, 1, 0), TextTransparency = 1, Visible = sphTextToggle})
     MakeDraggable(Sphere, Sphere)
 
     local Window = {CurrentTab = nil, Tabs = {}, Title = Title, AllCards = {}, MainFrame = MainFrame, CurrentTransparency = 0, ConfigElements = {}}
@@ -442,40 +468,53 @@ function Library:CreateWindow(options)
         end
     end
 
-    -- // Animated Background + Frame Stroke
+    -- // Animated Background (set Window options: BackgroundImages = {...}, BackgroundDelay = 2)
     task.spawn(function()
+        local images = {}
+        for _, rawId in ipairs(bgImages) do
+            table.insert(images, NormalizeAsset(rawId))
+        end
+        if #images == 0 then return end
+
         local bg = Instance.new("ImageLabel")
         bg.Name = "CustomBackground"
         bg.Size = UDim2.new(1, 0, 1, 0)
         bg.Position = UDim2.new(0, 0, 0, 0)
         bg.BackgroundTransparency = 1
+        bg.BorderSizePixel = 0
         bg.ImageTransparency = 0
         bg.ScaleType = Enum.ScaleType.Crop
         bg.ZIndex = 0
+        bg.Active = false
+        bg.Image = images[1]
         bg.Parent = MainFrame
 
         Create("UICorner", {Parent = bg, CornerRadius = UDim.new(0, 8)})
 
-        local images = {
-            "rbxassetid://81817688420352",
-            "rbxassetid://138185685466744",
-            "rbxassetid://131336818699662",
-        }
+        -- Load check: a Decal ID will never render inside an ImageLabel, so say so in the console
+        task.spawn(function()
+            pcall(function() ContentProvider:PreloadAsync({bg}) end)
+            task.wait(1)
+            if bg.Parent and not bg.IsLoaded then
+                warn("[ZyronX] Background image failed to load: " .. images[1] .. " | Use the IMAGE asset ID, not the Decal ID.")
+            end
+        end)
+
+        if #images == 1 then return end
 
         local index = 1
-        bg.Image = images[index]
-
         while bg.Parent do
-            task.wait(2)
+            task.wait(bgDelay)
             index = index % #images + 1
             bg.Image = images[index]
         end
     end)
 
+    -- // Blue Frame Outline
     task.spawn(function()
         local stroke = Instance.new("UIStroke")
         stroke.Name = "CustomStroke"
-        stroke.Color = Color3.fromRGB(255, 0, 0)
+        stroke.Color = outlineColor
         stroke.Thickness = 2.5
         stroke.Transparency = 0.2
         stroke.Parent = MainFrame
@@ -747,7 +786,7 @@ function Library:CreateWindow(options)
                 local targetColumn = PageObj.Left and LeftColumn or RightColumn
                 PageObj.Left = not PageObj.Left
 
-                local SectionContainer = Create("Frame", {Parent = targetColumn, BackgroundColor3 = CardColor, Size = UDim2.new(1, 0, 0, 30), AutomaticSize = Enum.AutomaticSize.Y, ClipsDescendants = true})
+                local SectionContainer = Create("Frame", {Parent = targetColumn, BackgroundColor3 = CardColor, BackgroundTransparency = CardTransparency, Size = UDim2.new(1, 0, 0, 30), AutomaticSize = Enum.AutomaticSize.Y, ClipsDescendants = true})
                 Create("UICorner", {Parent = SectionContainer, CornerRadius = UDim.new(0, 6)})
                 
                 table.insert(Window.AllCards, {
@@ -779,7 +818,7 @@ function Library:CreateWindow(options)
                         SafeCopyToClipboard(copyText)
                         local oldText = Btn.Text
                         Btn.Text = "Copied to Clipboard!"
-                        Tween(Btn, {TextColor3 = AccentColor, BackgroundColor3 = HoverColor}, 0.2)
+                        Tween(Btn, {TextColor3 = TextColor, BackgroundColor3 = HoverColor}, 0.2)
                         task.wait(1.5)
                         if Btn.Parent then
                             Btn.Text = oldText
