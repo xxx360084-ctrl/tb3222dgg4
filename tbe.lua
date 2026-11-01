@@ -364,7 +364,7 @@ function Library:CreateWindow(options)
     local MainFrame = Create("Frame", {Parent = ScreenGui, BackgroundColor3 = BackgroundColor, Size = UDim2.new(0, windowWidth, 0, windowHeight), Position = UDim2.new(0.5, 0, 0.5, 0), AnchorPoint = Vector2.new(0.5, 0.5), ClipsDescendants = true, BackgroundTransparency = 1, Active = true})
     local MainScale = Create("UIScale", {Parent = MainFrame, Scale = 0.8})
     Create("UICorner", {Parent = MainFrame, CornerRadius = UDim.new(0, 8)})
-    Tween(MainScale, {Scale = 1}, 0.5)
+    Tween(MainScale, {Scale = 0.9}, 0.5)
     Tween(MainFrame, {BackgroundTransparency = 0}, 0.5)
 
     -- // CORE ENGINE ADDITION: Floating Bottom Bar Natively Attached to ScreenGui
@@ -553,7 +553,7 @@ function Library:CreateWindow(options)
         Sphere.Visible = false
         MainFrame.Visible = true
         BottomDragHitbox.Visible = true
-        Tween(MainScale, {Scale = 1}, 0.4)
+        Tween(MainScale, {Scale = 0.9}, 0.4)
         Tween(MainFrame, {BackgroundTransparency = Window.CurrentTransparency}, 0.4)
         Tween(FloatingBottomBar, {BackgroundTransparency = Window.CurrentTransparency > 0 and 0.2 or 0}, 0.4)
         Tween(BottomBarStroke, {Transparency = 0}, 0.4)
@@ -593,7 +593,7 @@ function Library:CreateWindow(options)
         Tween(PopupText, {TextTransparency = 1}, 0.3)
         Tween(YesBtn, {BackgroundTransparency = 1, TextTransparency = 1}, 0.3)
         Tween(NoBtn, {BackgroundTransparency = 1, TextTransparency = 1}, 0.3)
-        Tween(MainScale, {Scale = 0.8}, 0.3)
+        Tween(MainScale, {Scale = 0.75}, 0.3)
         Tween(MainFrame, {BackgroundTransparency = 1}, 0.3)
         Tween(FloatingBottomBar, {BackgroundTransparency = 1}, 0.3)
         Tween(BottomBarStroke, {Transparency = 1}, 0.3)
