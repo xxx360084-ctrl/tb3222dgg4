@@ -194,6 +194,8 @@ function Library:CreateWindow(options)
     local logoSize = 32
     local sphIconSize = 26
     local outlineColor = OutlineColor
+    local windowWidth = 800
+    local windowHeight = 520
     local bgDelay = 2
     local bgImages = {
         "rbxassetid://81817688420352",
@@ -206,6 +208,10 @@ function Library:CreateWindow(options)
         subText = options.Subtitle or subText
         subColor = options.SubtitleColor or subColor
         outlineColor = options.OutlineColor or outlineColor
+        if typeof(options.Size) == "UDim2" then
+            windowWidth = options.Size.X.Offset
+            windowHeight = options.Size.Y.Offset
+        end
         bgDelay = options.BackgroundDelay or bgDelay
         if type(options.BackgroundImages) == "table" and #options.BackgroundImages > 0 then
             bgImages = options.BackgroundImages
@@ -230,6 +236,13 @@ function Library:CreateWindow(options)
         sphIconSize = options.SphereIconSize or 26
     elseif type(options) == "string" then
         hubName = options
+    end
+
+    -- Keep the window on screen for small viewports
+    local camera = workspace.CurrentCamera
+    if camera then
+        windowWidth = math.min(windowWidth, camera.ViewportSize.X - 40)
+        windowHeight = math.min(windowHeight, camera.ViewportSize.Y - 80)
     end
 
     local uniqueID = HttpService:GenerateGUID(false)
@@ -349,7 +362,7 @@ function Library:CreateWindow(options)
         Btn.MouseButton1Click:Connect(function() OpenInfoWindow(data) end)
     end
 
-    local MainFrame = Create("Frame", {Parent = ScreenGui, BackgroundColor3 = BackgroundColor, Size = UDim2.new(0, 525, 0, 355), Position = UDim2.new(0.5, 0, 0.5, 0), AnchorPoint = Vector2.new(0.5, 0.5), ClipsDescendants = true, BackgroundTransparency = 1, Active = true})
+    local MainFrame = Create("Frame", {Parent = ScreenGui, BackgroundColor3 = BackgroundColor, Size = UDim2.new(0, windowWidth, 0, windowHeight), Position = UDim2.new(0.5, 0, 0.5, 0), AnchorPoint = Vector2.new(0.5, 0.5), ClipsDescendants = true, BackgroundTransparency = 1, Active = true})
     local MainScale = Create("UIScale", {Parent = MainFrame, Scale = 0.8})
     Create("UICorner", {Parent = MainFrame, CornerRadius = UDim.new(0, 8)})
     Tween(MainScale, {Scale = 1}, 0.5)
@@ -391,8 +404,8 @@ function Library:CreateWindow(options)
         if MainFrame and MainFrame.Visible then
             BottomDragHitbox.Visible = true
             local currentScale = MainScale.Scale
-            local frameHeight = 420 * currentScale
-            local frameWidth = 650 * currentScale
+            local frameHeight = windowHeight * currentScale
+            local frameWidth = windowWidth * currentScale
             
             BottomDragHitbox.Position = UDim2.new(
                 MainFrame.Position.X.Scale,
