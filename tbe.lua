@@ -143,7 +143,8 @@ local function MakeDraggable(topbar, object)
     end)
 end
 
-local AccentColor = Color3.fromRGB(148, 0, 211)
+-- // CHANGED: AccentColor → White (no more purple 💀)
+local AccentColor = Color3.fromRGB(255, 255, 255)
 local OutlineColor = Color3.fromRGB(0, 120, 255)
 local BackgroundColor = Color3.fromRGB(18, 18, 20)
 local CardColor = Color3.fromRGB(24, 24, 27)
@@ -194,13 +195,13 @@ function Library:CreateWindow(options)
     local logoSize = 32
     local sphIconSize = 26
     local outlineColor = OutlineColor
-    local windowWidth = 800
-    local windowHeight = 520
+    -- // CHANGED: Smaller default window size (680x440 instead of 800x520)
+    local windowWidth = 680
+    local windowHeight = 440
     local bgDelay = 2
+    -- // CHANGED: Default background is now Temu's asset ID
     local bgImages = {
-        "rbxassetid://81817688420352",
-        "rbxassetid://138185685466744",
-        "rbxassetid://131336818699662",
+        "rbxassetid://119607416203161",
     }
 
     if type(options) == "table" then
@@ -221,7 +222,6 @@ function Library:CreateWindow(options)
             sphTextToggle = options.SphereText
         end
         if options.SphereWords ~= nil then
-            -- Enforce 2-word limit logic
             local wordList = string.split(tostring(options.SphereWords), " ")
             if #wordList > 2 then
                 sphWords = wordList[1] .. " " .. wordList[2]
@@ -238,7 +238,6 @@ function Library:CreateWindow(options)
         hubName = options
     end
 
-    -- Keep the window on screen for small viewports
     local camera = workspace.CurrentCamera
     if camera then
         windowWidth = math.min(windowWidth, camera.ViewportSize.X - 40)
@@ -369,8 +368,6 @@ function Library:CreateWindow(options)
     Tween(MainFrame, {BackgroundTransparency = 0}, 0.5)
 
     -- // CORE ENGINE ADDITION: Floating Bottom Bar Natively Attached to ScreenGui
-    
-    -- The Drag Hitbox (Invisible but large for easy grabbing)
     local BottomDragHitbox = Create("Frame", {
         Parent = ScreenGui,
         BackgroundTransparency = 1,
@@ -380,7 +377,6 @@ function Library:CreateWindow(options)
         Active = true
     })
 
-    -- The Visible Modern Bar (Sleeker, pill-shaped, dark gray outline)
     local FloatingBottomBar = Create("Frame", {
         Parent = BottomDragHitbox,
         BackgroundColor3 = CardColor,
@@ -397,7 +393,6 @@ function Library:CreateWindow(options)
         Transparency = 0
     })
 
-    -- Drags MainFrame when the larger invisible hitbox is pulled. Sync is perfect.
     MakeDraggable(BottomDragHitbox, MainFrame)
 
     RunService.RenderStepped:Connect(function()
@@ -441,7 +436,7 @@ function Library:CreateWindow(options)
     local Title = Create("TextLabel", {Parent = TitleContainer, Text = hubName, Font = Enum.Font.GothamBold, TextSize = 14, TextColor3 = TextColor, BackgroundTransparency = 1, Position = UDim2.new(0, 0, 0, 5), Size = UDim2.new(1, 0, 0, 16), TextXAlignment = Enum.TextXAlignment.Left})
     local Subtitle = Create("TextLabel", {Parent = TitleContainer, Text = subText, Font = Enum.Font.Gotham, TextSize = 10, TextColor3 = subColor, BackgroundTransparency = 1, Position = UDim2.new(0, 0, 0, 22), Size = UDim2.new(1, 0, 0, 12), TextXAlignment = Enum.TextXAlignment.Left})
 
-    local SearchBar = Create("Frame", {Parent = TopBar, BackgroundColor3 = CardColor, BackgroundTransparency = CardTransparency, Size = UDim2.new(0, 250, 0, 26), Position = UDim2.new(0, 180, 0.5, -13)})
+    local SearchBar = Create("Frame", {Parent = TopBar, BackgroundColor3 = CardColor, BackgroundTransparency = CardTransparency, Size = UDim2.new(0, 220, 0, 26), Position = UDim2.new(0, 180, 0.5, -13)})
     Create("UICorner", {Parent = SearchBar, CornerRadius = UDim.new(0, 6)})
     local SearchIcon = Create("ImageLabel", {Parent = SearchBar, BackgroundTransparency = 1, Image = "rbxassetid://6031154871", ImageColor3 = SubTextColor, Size = UDim2.new(0, 14, 0, 14), Position = UDim2.new(0, 8, 0.5, -7)})
     local SearchInput = Create("TextBox", {Parent = SearchBar, BackgroundTransparency = 1, Size = UDim2.new(1, -30, 1, 0), Position = UDim2.new(0, 30, 0, 0), Font = Enum.Font.Gotham, TextSize = 12, TextColor3 = TextColor, PlaceholderText = "Search..", TextXAlignment = Enum.TextXAlignment.Left, ClearTextOnFocus = false})
@@ -449,7 +444,7 @@ function Library:CreateWindow(options)
     local CloseBtn = Create("TextButton", {Parent = TopBar, Text = "X", Font = Enum.Font.GothamBold, TextSize = 14, TextColor3 = SubTextColor, BackgroundTransparency = 1, Size = UDim2.new(0, 30, 1, 0), Position = UDim2.new(1, -35, 0, 0)})
     local MinBtn = Create("TextButton", {Parent = TopBar, Text = "—", Font = Enum.Font.GothamBold, TextSize = 14, TextColor3 = SubTextColor, BackgroundTransparency = 1, Size = UDim2.new(0, 30, 1, 0), Position = UDim2.new(1, -65, 0, 0)})
 
-    local Sidebar = Create("Frame", {Parent = MainFrame, BackgroundColor3 = BackgroundColor, BackgroundTransparency = 1, Size = UDim2.new(0, 160, 1, -40), Position = UDim2.new(0, 0, 0, 40), Active = true})
+    local Sidebar = Create("Frame", {Parent = MainFrame, BackgroundColor3 = BackgroundColor, BackgroundTransparency = 1, Size = UDim2.new(0, 150, 1, -40), Position = UDim2.new(0, 0, 0, 40), Active = true})
     local TabSearchBox = Create("TextBox", {Parent = Sidebar, BackgroundColor3 = CardColor, BackgroundTransparency = CardTransparency, Size = UDim2.new(1, -20, 0, 26), Position = UDim2.new(0, 10, 0, 5), Font = Enum.Font.Gotham, TextSize = 12, TextColor3 = TextColor, PlaceholderText = "Search tabs...", TextXAlignment = Enum.TextXAlignment.Left, ClearTextOnFocus = false})
     Create("UIPadding", {Parent = TabSearchBox, PaddingLeft = UDim.new(0, 8)})
     Create("UICorner", {Parent = TabSearchBox, CornerRadius = UDim.new(0, 4)})
@@ -457,15 +452,14 @@ function Library:CreateWindow(options)
     
     local TabContainer = Create("ScrollingFrame", {Parent = Sidebar, BackgroundTransparency = 1, Size = UDim2.new(1, -15, 1, -40), Position = UDim2.new(0, 10, 0, 40), ScrollBarThickness = 0})
     Create("UIListLayout", {Parent = TabContainer, SortOrder = Enum.SortOrder.LayoutOrder, Padding = UDim.new(0, 5)})
-    local Divider = Create("Frame", {Parent = MainFrame, BackgroundColor3 = Color3.fromRGB(40, 40, 45), BorderSizePixel = 0, Size = UDim2.new(0, 1, 1, -40), Position = UDim2.new(0, 160, 0, 40)})
+    local Divider = Create("Frame", {Parent = MainFrame, BackgroundColor3 = Color3.fromRGB(40, 40, 45), BorderSizePixel = 0, Size = UDim2.new(0, 1, 1, -40), Position = UDim2.new(0, 150, 0, 40)})
 
-    local ContentArea = Create("Frame", {Parent = MainFrame, BackgroundTransparency = 1, Size = UDim2.new(1, -165, 1, -40), Position = UDim2.new(0, 165, 0, 40), Active = true})
+    local ContentArea = Create("Frame", {Parent = MainFrame, BackgroundTransparency = 1, Size = UDim2.new(1, -155, 1, -40), Position = UDim2.new(0, 155, 0, 40), Active = true})
 
     local Sphere = Create("ImageButton", {Parent = ScreenGui, BackgroundColor3 = BackgroundColor, BackgroundTransparency = 0.2, Size = UDim2.new(0, 50, 0, 50), Position = UDim2.new(0.5, 0, 0.5, 0), AnchorPoint = Vector2.new(0.5, 0.5), Visible = false, AutoButtonColor = false, ImageTransparency = 1, ClipsDescendants = true})
     Create("UICorner", {Parent = Sphere, CornerRadius = UDim.new(1, 0)})
     Create("UIStroke", {Parent = Sphere, Color = outlineColor, Thickness = 2})
     
-    -- MODIFIED SECTION: Text Label prioritized if SphereText toggle is true. Avoids passing boolean as Text.
     local SphereImageLabel = Create("ImageLabel", {Parent = Sphere, BackgroundTransparency = 1, Size = UDim2.new(0, sphIconSize, 0, sphIconSize), Position = UDim2.new(0.5, 0, 0.5, 0), AnchorPoint = Vector2.new(0.5, 0.5), Image = sphImage or "", ImageTransparency = 1, Visible = (not sphTextToggle and sphImage ~= nil)})
     local SphereTextLabel = Create("TextLabel", {Parent = Sphere, Text = sphWords, Font = Enum.Font.GothamBold, TextSize = 16, TextColor3 = TextColor, BackgroundTransparency = 1, Size = UDim2.new(1, 0, 1, 0), TextTransparency = 1, Visible = sphTextToggle})
     MakeDraggable(Sphere, Sphere)
@@ -476,12 +470,11 @@ function Library:CreateWindow(options)
         Window.CurrentTransparency = val
         if MainFrame.Visible then
             Tween(MainFrame, {BackgroundTransparency = val}, 0.3)
-            -- Dynamic floating bottom bar transparency control integrated
             Tween(FloatingBottomBar, {BackgroundTransparency = val > 0 and 0.2 or 0}, 0.3)
         end
     end
 
-    -- // Animated Background (set Window options: BackgroundImages = {...}, BackgroundDelay = 2)
+    -- // Animated Background
     task.spawn(function()
         local images = {}
         for _, rawId in ipairs(bgImages) do
@@ -504,7 +497,6 @@ function Library:CreateWindow(options)
 
         Create("UICorner", {Parent = bg, CornerRadius = UDim.new(0, 8)})
 
-        -- Load check: a Decal ID will never render inside an ImageLabel, so say so in the console
         task.spawn(function()
             pcall(function() ContentProvider:PreloadAsync({bg}) end)
             task.wait(1)
@@ -544,7 +536,6 @@ function Library:CreateWindow(options)
         Sphere.Visible = true
         Tween(Sphere, {Size = UDim2.new(0, 50, 0, 50)}, 0.4)
         
-        -- Corrected fade logic depending on Text toggle
         if not sphTextToggle and sphImage then
             Tween(SphereImageLabel, {ImageTransparency = 0}, 0.4)
         elseif sphTextToggle then
@@ -555,7 +546,6 @@ function Library:CreateWindow(options)
     Sphere.MouseButton1Click:Connect(function()
         Tween(Sphere, {Size = UDim2.new(0, 0, 0, 0)}, 0.3)
         
-        -- Corrected fade logic depending on Text toggle
         if not sphTextToggle and sphImage then Tween(SphereImageLabel, {ImageTransparency = 1}, 0.3) end
         if sphTextToggle then Tween(SphereTextLabel, {TextTransparency = 1}, 0.3) end
         
@@ -692,6 +682,7 @@ function Library:CreateWindow(options)
         local TabBtn = Create("TextButton", {Parent = TabContainer, Text = "", BackgroundColor3 = HoverColor, BackgroundTransparency = 1, Size = UDim2.new(1, 0, 0, 35), AutoButtonColor = false})
         Create("UICorner", {Parent = TabBtn, CornerRadius = UDim.new(0, 6)})
         AddBounce(TabBtn, 0.98)
+        -- // CHANGED: Indicator uses AccentColor (now white)
         local Indicator = Create("Frame", {Name = "Indicator", Parent = TabBtn, BackgroundColor3 = isLocked and Color3.fromRGB(255, 215, 0) or AccentColor, Size = UDim2.new(0, 3, 0, 0), Position = UDim2.new(0, 0, 0.5, 0), AnchorPoint = Vector2.new(0, 0.5)})
         Create("UICorner", {Parent = Indicator, CornerRadius = UDim.new(1, 0)})
         local Txt = Create("TextLabel", {Parent = TabBtn, Text = tabName, Font = Enum.Font.GothamBold, TextSize = 13, TextColor3 = SubTextColor, BackgroundTransparency = 1, Size = UDim2.new(1, -40, 1, 0), Position = UDim2.new(0, 15, 0, 0), TextXAlignment = Enum.TextXAlignment.Left})
@@ -755,6 +746,7 @@ function Library:CreateWindow(options)
 
         function TabConfig:CreatePage(pageName)
             local PageBtn = Create("TextButton", {Parent = PageNav, Text = pageName, Font = Enum.Font.GothamBold, TextSize = 13, TextColor3 = SubTextColor, BackgroundTransparency = 1, Size = UDim2.new(0, 0, 1, 0), AutomaticSize = Enum.AutomaticSize.X})
+            -- // CHANGED: Page underline highlight uses AccentColor (now white)
             local PageHighlight = Create("Frame", {Parent = PageBtn, BackgroundColor3 = AccentColor, Size = UDim2.new(0, 0, 0, 2), Position = UDim2.new(0.5, 0, 1, -5), AnchorPoint = Vector2.new(0.5, 0), BackgroundTransparency = 1})
             local PageScroll = Create("ScrollingFrame", {Parent = PageContainer, BackgroundTransparency = 1, Size = UDim2.new(1, -10, 1, -10), Position = UDim2.new(0, 5, 0, 5), ScrollBarThickness = 2, ScrollBarImageColor3 = Color3.fromRGB(60, 60, 65), Visible = false, BorderSizePixel = 0})
 
@@ -861,6 +853,7 @@ function Library:CreateWindow(options)
                     
                     Create("TextLabel", {Parent = TogFrame, Text = name, Font = Enum.Font.Gotham, TextSize = 12, TextColor3 = SubTextColor, BackgroundTransparency = 1, Size = UDim2.new(1, -60, 1, 0), Position = UDim2.new(0, 10, 0, 0), TextXAlignment = Enum.TextXAlignment.Left})
                     
+                    -- // CHANGED: Toggle uses AccentColor (now white) when ON
                     local Lever = Create("TextButton", {Parent = TogFrame, Text = "", BackgroundColor3 = state and AccentColor or Color3.fromRGB(45, 45, 50), Size = UDim2.new(0, 36, 0, 18), Position = UDim2.new(1, -46, 0.5, -9), AutoButtonColor = false})
                     Create("UICorner", {Parent = Lever, CornerRadius = UDim.new(1, 0)})
                     AddBounce(Lever)
@@ -892,9 +885,10 @@ function Library:CreateWindow(options)
                     Create("UICorner", {Parent = TrackBase, CornerRadius = UDim.new(1, 0)})
                     Create("UIStroke", {Parent = TrackBase, Color = Color3.fromRGB(45, 45, 50), Thickness = 1})
 
+                    -- // CHANGED: Slider fill uses AccentColor (now white)
                     local Fill = Create("Frame", {Parent = TrackBase, BackgroundColor3 = AccentColor, Size = UDim2.new((val-min)/(max-min), 0, 1, 0)})
                     Create("UICorner", {Parent = Fill, CornerRadius = UDim.new(1, 0)})
-                    local Knob = Create("Frame", {Parent = Fill, BackgroundColor3 = Color3.fromRGB(255, 255, 255), Size = UDim2.new(0, 12, 0, 12), Position = UDim2.new(1, -6, 0.5, -6)})
+                    local Knob = Create("Frame", {Parent = Fill, BackgroundColor3 = Color3.fromRGB(200, 200, 200), Size = UDim2.new(0, 12, 0, 12), Position = UDim2.new(1, -6, 0.5, -6)})
                     Create("UICorner", {Parent = Knob, CornerRadius = UDim.new(1, 0)})
 
                     local function internalSet(v)
@@ -974,6 +968,7 @@ function Library:CreateWindow(options)
                     for _, opt in pairs(options) do
                         local isInitialSelected = (not isMulti and selected == opt)
                         local OptBtn = Create("TextButton", {Parent = ListFrame, Text = opt, Font = Enum.Font.Gotham, TextSize = 12, TextColor3 = isInitialSelected and TextColor or SubTextColor, BackgroundTransparency = 1, Size = UDim2.new(1, 0, 0, 25), AutoButtonColor = false})
+                        -- // CHANGED: Dropdown selection highlight uses AccentColor (now white)
                         local Check = Create("Frame", {Parent = OptBtn, BackgroundColor3 = AccentColor, Size = isInitialSelected and UDim2.new(1, 0, 1, 0) or UDim2.new(0, 0, 1, 0), BackgroundTransparency = 0.8})
                         table.insert(optionButtons, OptBtn)
                         
@@ -1182,7 +1177,7 @@ function Library:CreateWindow(options)
                     Create("UICorner", {Parent = NameBox, CornerRadius = UDim.new(0, 4)})
                     Create("UIStroke", {Parent = NameBox, Color = Color3.fromRGB(45, 45, 50), Thickness = 1})
 
-                    local CreateBtn = Create("TextButton", {Parent = Controls, Text = "Create Save", Font = Enum.Font.GothamBold, TextSize = 12, TextColor3 = Color3.fromRGB(255,255,255), BackgroundColor3 = AccentColor, Size = UDim2.new(0.5, -5, 0, 26), Position = UDim2.new(0, 0, 0, 35), AutoButtonColor = false})
+                    local CreateBtn = Create("TextButton", {Parent = Controls, Text = "Create Save", Font = Enum.Font.GothamBold, TextSize = 12, TextColor3 = Color3.fromRGB(0, 0, 0), BackgroundColor3 = AccentColor, Size = UDim2.new(0.5, -5, 0, 26), Position = UDim2.new(0, 0, 0, 35), AutoButtonColor = false})
                     Create("UICorner", {Parent = CreateBtn, CornerRadius = UDim.new(0, 4)})
                     AddBounce(CreateBtn)
 
